@@ -111,18 +111,20 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-project-lab-ci-cd:${{ github.sha }}
           SSHPASS: ${{ secrets.DEPLOY_Password_KEY }}
         run: |
-          printf '%s\n' "$DOCKER_IMAGE" | sshpass -e ssh \
+          printf '%s\n%s\n' "$DOCKER_IMAGE" "${DEPLOY_PATH:-/root/ksn}" | sshpass -e ssh \
             -p "${DEPLOY_PORT:-22}" \
             -o PreferredAuthentications=password \
             -o PubkeyAuthentication=no \
             -o StrictHostKeyChecking=yes \
             "$DEPLOY_USER@$DEPLOY_HOST" \
             'read -r DOCKER_IMAGE
+             read -r DEPLOY_PATH
              set -eu
-             cd "$HOME/nodejs-project-lab-ci-cd"
+             cd "$DEPLOY_PATH"
              test -f compose.prod.yaml
              export DOCKER_IMAGE
              docker compose -f compose.prod.yaml pull

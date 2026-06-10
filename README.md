@@ -48,6 +48,7 @@ Configure these GitHub repository secrets:
 - `DEPLOY_PORT` - SSH port; use `22` for the default
 - `DEPLOY_USER` - unprivileged Ubuntu user with Docker access
 - `DEPLOY_Password_KEY` - SSH password for the deployment user
+- `DEPLOY_PATH` - optional server directory; defaults to `/root/ksn`
 - `DEPLOY_KNOWN_HOSTS` - optional trusted host-key line from `ssh-keyscan`
 
 Create a protected GitHub environment named `production` for the deploy job.
@@ -67,8 +68,8 @@ docker login
 Create the deployment directory and place `compose.prod.yaml` on the server:
 
 ```bash
-mkdir -p ~/nodejs-project-lab-ci-cd
-cd ~/nodejs-project-lab-ci-cd
+mkdir -p /root/ksn
+cd /root/ksn
 # Create compose.prod.yaml here.
 ```
 
@@ -85,6 +86,6 @@ If `DEPLOY_KNOWN_HOSTS` is not set, the workflow discovers the host key with
 protect the first connection from a man-in-the-middle attack.
 
 The workflow uses
-`~/nodejs-project-lab-ci-cd/compose.prod.yaml`, pulls the exact commit image,
+`${DEPLOY_PATH:-/root/ksn}/compose.prod.yaml`, pulls the exact commit image,
 starts the service, waits for the container health check, and removes unused
-images.
+images. The deployment user must have permission to access this directory.
