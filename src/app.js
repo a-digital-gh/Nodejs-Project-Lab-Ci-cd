@@ -18,7 +18,7 @@ function createApp() {
   app.get("/", (_request, response) => {
     response.json({
       name: "nodejs-project-lab-ci-cd",
-      status: "ok",
+      status: "ok ketsana",
     });
   });
 
