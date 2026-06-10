@@ -88,14 +88,16 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Configure SSH
+      - name: Install SSH password client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes sshpass
+
+      - name: Configure SSH host verification
         env:
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
         run: |
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
@@ -104,11 +106,12 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          SSHPASS: ${{ secrets.DEPLOY_Password_KEY }}
         run: |
-          scp \
-            -i ~/.ssh/deploy_key \
+          sshpass -e scp \
             -P "${DEPLOY_PORT:-22}" \
-            -o BatchMode=yes \
+            -o PreferredAuthentications=password \
+            -o PubkeyAuthentication=no \
             -o StrictHostKeyChecking=yes \
             compose.prod.yaml \
             "$DEPLOY_USER@$DEPLOY_HOST:/tmp/nodejs-api-compose.yaml"
@@ -119,11 +122,12 @@ jobs:
           DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-project-lab-ci-cd:${{ github.sha }}
+          SSHPASS: ${{ secrets.DEPLOY_Password_KEY }}
         run: |
-          printf '%s\n' "$DOCKER_IMAGE" | ssh \
-            -i ~/.ssh/deploy_key \
+          printf '%s\n' "$DOCKER_IMAGE" | sshpass -e ssh \
             -p "${DEPLOY_PORT:-22}" \
-            -o BatchMode=yes \
+            -o PreferredAuthentications=password \
+            -o PubkeyAuthentication=no \
             -o StrictHostKeyChecking=yes \
             "$DEPLOY_USER@$DEPLOY_HOST" \
             'read -r DOCKER_IMAGE

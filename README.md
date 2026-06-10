@@ -47,7 +47,7 @@ Configure these GitHub repository secrets:
 - `DEPLOY_HOST` - Ubuntu server hostname or IP address
 - `DEPLOY_PORT` - SSH port; use `22` for the default
 - `DEPLOY_USER` - unprivileged Ubuntu user with Docker access
-- `DEPLOY_SSH_KEY` - private SSH key for the deployment user
+- `DEPLOY_Password_KEY` - SSH password for the deployment user
 - `DEPLOY_KNOWN_HOSTS` - trusted server host-key line from `ssh-keyscan`
 
 Create a protected GitHub environment named `production` for the deploy job.
@@ -64,9 +64,9 @@ repository is private:
 docker login
 ```
 
-Add the public half of `DEPLOY_SSH_KEY` to the deployment user's
-`~/.ssh/authorized_keys`. Generate `DEPLOY_KNOWN_HOSTS` from a trusted machine
-after verifying the server fingerprint:
+Ensure SSH password authentication is enabled for the deployment user. Generate
+`DEPLOY_KNOWN_HOSTS` from a trusted machine after verifying the server
+fingerprint:
 
 ```bash
 ssh-keyscan -H your-server.example.com
