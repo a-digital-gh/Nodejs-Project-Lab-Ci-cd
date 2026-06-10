@@ -48,7 +48,7 @@ Configure these GitHub repository secrets:
 - `DEPLOY_PORT` - SSH port; use `22` for the default
 - `DEPLOY_USER` - unprivileged Ubuntu user with Docker access
 - `DEPLOY_Password_KEY` - SSH password for the deployment user
-- `DEPLOY_KNOWN_HOSTS` - trusted server host-key line from `ssh-keyscan`
+- `DEPLOY_KNOWN_HOSTS` - optional trusted host-key line from `ssh-keyscan`
 
 Create a protected GitHub environment named `production` for the deploy job.
 Environment approvals can be enabled if deployments should require a manual
@@ -64,14 +64,27 @@ repository is private:
 docker login
 ```
 
-Ensure SSH password authentication is enabled for the deployment user. Generate
-`DEPLOY_KNOWN_HOSTS` from a trusted machine after verifying the server
-fingerprint:
+Create the deployment directory and place `compose.prod.yaml` on the server:
 
 ```bash
-ssh-keyscan -H your-server.example.com
+mkdir -p ~/nodejs-project-lab-ci-cd
+cd ~/nodejs-project-lab-ci-cd
+# Create compose.prod.yaml here.
 ```
 
-The workflow installs the Compose file in
-`~/nodejs-project-lab-ci-cd/compose.yaml`, pulls the exact commit image, starts
-the service, waits for the container health check, and removes unused images.
+Ensure SSH password authentication is enabled for the deployment user. For
+strong host verification, set `DEPLOY_KNOWN_HOSTS` from a trusted machine after
+verifying the server fingerprint. Include the custom SSH port when applicable:
+
+```bash
+ssh-keyscan -p 22 -H your-server.example.com
+```
+
+If `DEPLOY_KNOWN_HOSTS` is not set, the workflow discovers the host key with
+`ssh-keyscan` during deployment. This is convenient for a lab but does not
+protect the first connection from a man-in-the-middle attack.
+
+The workflow uses
+`~/nodejs-project-lab-ci-cd/compose.prod.yaml`, pulls the exact commit image,
+starts the service, waits for the container health check, and removes unused
+images.
