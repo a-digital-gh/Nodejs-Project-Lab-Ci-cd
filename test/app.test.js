@@ -12,7 +12,7 @@ test("GET / returns API metadata", async () => {
 
   assert.deepEqual(response.body, {
     name: "nodejs-project-lab-ci-cd",
-    status: "ok",
+    status: "ok ketsana",
   });
 });
 
